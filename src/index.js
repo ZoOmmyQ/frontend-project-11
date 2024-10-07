@@ -1,6 +1,5 @@
-import '@styles/index.scss';
-import 'bootstrap';
-import 'bootstrap-icons/font/bootstrap-icons.scss';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/js/dist/modal.js';
 
 import app from './app.js';
 
