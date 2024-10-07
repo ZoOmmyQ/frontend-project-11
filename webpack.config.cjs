@@ -21,7 +21,7 @@ const optimization = () => {
   return mode === 'production' ? configProd : configDev;
 };
 
-export default {
+module.exports = {
   mode,
   entry: './src/index.js',
   output: {
