@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
 let mode = 'development';
@@ -32,6 +33,7 @@ module.exports = {
   resolve: {
     alias: {
       '@src': path.resolve(__dirname, 'src'),
+      '@images': path.resolve(__dirname, 'src/images'),
       '@styles': path.resolve(__dirname, 'src/styles'),
     },
   },
@@ -54,6 +56,14 @@ module.exports = {
       minify: {
         collapseWhitespace: true,
       },
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, 'src/images/favicon.ico'),
+          to: path.resolve(__dirname, 'dist'),
+        },
+      ],
     }),
   ],
   module: {
