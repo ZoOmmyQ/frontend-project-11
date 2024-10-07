@@ -1,10 +1,10 @@
 install:
 	npm ci
-build:
-	rm -rf dist
-	NODE_ENV=production npx webpack
-
-make lint:
+publish:
+	npm publish --dry-run	
+lint:
 	npx eslint .
-
-.PHONY: test
+develop:
+	npx webpack serve
+build:
+	NODE_ENV=production npx webpack
