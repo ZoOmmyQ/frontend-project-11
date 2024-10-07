@@ -1,7 +1,7 @@
-import * as path from ('path');
-import * as HtmlWebpackPlugin from ('html-webpack-plugin');
-import * as MiniCssExtractPlugin from ('mini-css-extract-plugin');
-import * as TerserPlugin from ('terser-webpack-plugin');
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 let mode = 'development';
 if (process.env.NODE_ENV === 'production') {
