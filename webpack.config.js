@@ -16,7 +16,6 @@ export default {
 
     new HtmlWebpackPlugin({
       template: 'index.html',
-      
     }),
   ],
   module: {
