@@ -41,59 +41,74 @@ const renderContainer = (type, i18next) => {
   return container;
 };
 
-const renderPosts = (postsEl, i18next, postList) => {
-  postsEl.innerHTML = '';
-  if (postList.length === 0) {
-    return;
-  }
-  const view = renderContainer('posts', i18next);
-  const list = view.querySelector('ul');
-  postList.forEach((el) => {
-    const post = document.createElement('li');
-    post.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+const renderPosts = (elems, posts, i18n) => {
+  elems.posts.innerHTML = null;
+  const card = document.createElement('div');
+  card.classList.add('card', 'border-0');
+  const cardBody = document.createElement('div');
+  cardBody.classList.add('card-body');
+  const cardTitle = document.createElement('h2');
+  cardTitle.classList.add('card-title', 'h4');
+  cardTitle.textContent = i18n.t('posting');
+  const listGroup = document.createElement('ul');
+  listGroup.classList.add('list-group', 'border-0', 'rounded-0');
+  posts.forEach((post) => {
+    const { id, title } = post;
+    const btn = document.createElement('button');
+    btn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    btn.dataset.id = id;
+    btn.dataset.bsToggle = 'modal';
+    btn.dataset.bsTarget = '#modal';
+    btn.textContent = i18n.t('review');
+    btn.setAttribute('type', 'button');
+    const listGroupItem = document.createElement('li');
+    listGroupItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const a = document.createElement('a');
-    post.append(a);
-    a.href = el.link;
+    a.textContent = title;
     a.classList.add('fw-bold');
+    a.dataset.id = id;
+    a.setAttribute('href', post.link);
     a.setAttribute('target', '_blank');
-    a.setAttribute('data-id', el.id);
-    a.setAttribute('rel', 'noopener');
-    a.setAttribute('rel', 'noreffer');
-    a.textContent = el.title;
-    const button = document.createElement('button');
-    post.append(button);
-    button.setAttribute('type', 'button');
-    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    button.setAttribute('data-id', el.id);
-    button.setAttribute('data-bs-toggle', 'modal');
-    button.setAttribute('data-bs-target', '#modal');
-    button.textContent = i18next.t('posts.button');
-    list.append(post);
+
+    listGroupItem.append(a);
+    listGroupItem.append(btn);
+    listGroup.prepend(listGroupItem);
   });
-  postsEl.append(view);
+  cardBody.append(cardTitle);
+  card.append(cardBody);
+  card.append(listGroup);
+  elems.posts.append(card);
 };
 
-const renderFeeds = (feedsEl, i18next, feedList) => {
-  feedsEl.innerHTML = '';
-  if (feedList.length === 0) {
-    return;
-  }
-  const view = renderContainer('feeds', i18next);
-  const list = view.querySelector('ul');
-  feedList.forEach((el) => {
-    const feed = document.createElement('li');
-    feed.classList.add('list-group-item', 'border-0', 'border-end-0');
-    const feedHeader = document.createElement('h3');
-    feed.append(feedHeader);
-    feedHeader.classList.add('h6', 'm-0');
-    feedHeader.textContent = el.title;
-    const description = document.createElement('p');
-    feed.append(description);
-    description.classList.add('m-0', 'small', 'text-black-50');
-    description.textContent = el.description;
-    list.append(feed);
+const renderFeeds = (elems, feeds, i18n) => {
+  elems.feeds.innerHTML = null;
+  const card = document.createElement('div');
+  card.classList.add('card', 'border-0');
+  const cardBody = document.createElement('div');
+  cardBody.classList.add('card-body');
+  const cardTitle = document.createElement('h2');
+  cardTitle.classList.add('card-title', 'h4');
+  cardTitle.textContent = i18n.t('feeds');
+  const listGroup = document.createElement('ul');
+  listGroup.classList.add('list-group', 'border-0', 'rounded-0');
+  feeds.forEach((feed) => {
+    const listGroupItem = document.createElement('li');
+    listGroupItem.classList.add('list-group-item', 'border-0', 'border-end-0');
+    const h3 = document.createElement('h3');
+    h3.classList.add('h6', 'm-0');
+    h3.textContent = feed.title;
+    const p = document.createElement('p');
+    p.textContent = feed.description;
+    p.classList.add('m-0', 'small', 'text-black-50');
+
+    h3.append(p);
+    listGroupItem.append(h3);
+    listGroup.prepend(listGroupItem);
   });
-  feedsEl.append(view);
+  cardBody.append(cardTitle);
+  card.append(cardBody);
+  card.append(listGroup);
+  elems.feeds.append(card);
 };
 
 const keepSeenPosts = (iDs) => {
