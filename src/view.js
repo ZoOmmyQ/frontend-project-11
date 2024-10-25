@@ -1,149 +1,205 @@
-import onChange from 'on-change';
-
-const renderProcessForm = (input, statusMessage, formButton) => {
-  input.setAttribute('readonly', 'true');
-  input.classList.remove('is-invalid');
-  statusMessage.textContent = '';
-  formButton.setAttribute('disabled', '');
-};
-
-const renderSuccessForm = (input, statusMessage, i18next, formButton) => {
-  input.classList.remove('is-invalid');
-  input.value = '';
-  statusMessage.classList.remove('text-danger');
-  statusMessage.classList.add('text-success');
-  statusMessage.textContent = i18next.t('status.success');
-  input.removeAttribute('readonly');
-  formButton.removeAttribute('disabled');
-};
-
-const renderErrorForm = (input, statusMessage, i18next, error, formButton) => {
-  input.classList.add('is-invalid');
-  statusMessage.classList.add('text-danger');
-  statusMessage.textContent = i18next.t(`status.${error}`);
-  input.removeAttribute('readonly');
-  formButton.removeAttribute('disabled');
-};
-
-const renderContainer = (type, i18next) => {
-  const container = document.createElement('div');
-  container.classList.add('card', 'border-0');
-  const cardBody = document.createElement('div');
-  container.append(cardBody);
-  cardBody.classList.add('card-body');
-  const header = document.createElement('h2');
-  cardBody.append(header);
-  header.classList.add('card-title', 'h4');
-  header.textContent = type === 'feeds' ? i18next.t('feeds.title') : i18next.t('posts.title');
-  const list = document.createElement('ul');
-  cardBody.append(list);
-  list.classList.add('list-group', 'border-0', 'rounded-0');
-  return container;
-};
-
-const renderPosts = (postsEl, i18next, postList) => {
-  postsEl.innerHTML = '';
-  if (postList.length === 0) {
-    return;
+const renderErrorsHandler = (alert, elements, i18n) => {
+  const errorMessage = alert !== undefined
+    ? alert.key
+    : alert;
+  if (errorMessage) {
+    elements.input.classList.add('is-invalid');
+    elements.feedback.classList.add('text-danger');
+    elements.feedback.textContent = i18n.t(errorMessage);
+  } else {
+    elements.input.classList.remove('is-invalid');
+    elements.feedback.textContent = i18n.t('successUrl');
+    elements.feedback.classList.remove('text-danger');
+    elements.feedback.classList.add('text-success');
+    elements.form.reset();
+    elements.form.focus();
   }
-  const view = renderContainer('posts', i18next);
-  const list = view.querySelector('ul');
-  postList.forEach((el) => {
-    const post = document.createElement('li');
-    post.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+};
+
+const successRenderPosts = (elements, state, i18n) => {
+  state.form.field.url = '';
+  const { content } = state;
+  const { posts } = elements;
+
+  posts.innerHTML = '';
+
+  const divCard = document.createElement('div');
+  divCard.classList.add('card', 'border-0');
+
+  const divCardBody = document.createElement('div');
+  divCardBody.classList.add('card-body');
+
+  const headerPostsCard = document.createElement('h2');
+  headerPostsCard.classList.add('card-title', 'h4');
+  headerPostsCard.textContent = i18n.t('posts');
+  divCardBody.append(headerPostsCard);
+
+  const ulCard = document.createElement('ul');
+  ulCard.classList.add('list-group', 'border-0', 'rounded-0');
+
+  const liCards = content.postsItem.map((post) => {
+    const liCard = document.createElement('li');
+    liCard.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+
+    const { postTitle, postLink, postId } = post;
+
     const a = document.createElement('a');
-    post.append(a);
-    a.href = el.link;
-    a.classList.add('fw-bold');
+    a.setAttribute('href', postLink);
+    a.setAttribute('class', 'fw-bold');
     a.setAttribute('target', '_blank');
-    a.setAttribute('data-id', el.id);
-    a.setAttribute('rel', 'noopener');
-    a.setAttribute('rel', 'noreffer');
-    a.textContent = el.title;
+    a.setAttribute('data-id', postId);
+    a.setAttribute('rel', 'noopener noreferrer');
+    a.textContent = postTitle;
+
+    if (state.readLink.has(postId)) {
+      a.classList.remove('fw-bold');
+      a.classList.add('link-secondary', 'fw-normal');
+    }
+
     const button = document.createElement('button');
-    post.append(button);
     button.setAttribute('type', 'button');
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    button.setAttribute('data-id', el.id);
+    button.setAttribute('data-id', postId);
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#modal');
-    button.textContent = i18next.t('posts.button');
-    list.append(post);
+    button.textContent = i18n.t('viewing');
+
+    liCard.append(a);
+    liCard.append(button);
+
+    return liCard;
   });
-  postsEl.append(view);
+
+  ulCard.append(...liCards);
+
+  divCard.append(divCardBody);
+  divCard.append(ulCard);
+  posts.append(divCard);
 };
 
-const renderFeeds = (feedsEl, i18next, feedList) => {
-  feedsEl.innerHTML = '';
-  if (feedList.length === 0) {
-    return;
+const successRenderFeeds = (elements, state, i18n) => {
+  const { content } = state;
+  const { feeds } = elements;
+
+  feeds.innerHTML = '';
+
+  const divCard = document.createElement('div');
+  divCard.classList.add('card', 'border-0');
+
+  const divCardBody = document.createElement('div');
+  divCardBody.classList.add('card-body');
+
+  const headerFeedsCard = document.createElement('h2');
+  headerFeedsCard.classList.add('card-title', 'h4');
+  headerFeedsCard.textContent = i18n.t('feeds');
+
+  divCardBody.append(headerFeedsCard);
+
+  const ulCard = document.createElement('ul');
+  ulCard.classList.add('list-group', 'border-0', 'rounded-0');
+
+  content.feedsItem.forEach((feed) => {
+    const liCard = document.createElement('li');
+    liCard.classList.add('list-group-item', 'border-0', 'border-end-0');
+
+    const { feedTitle, feedDescription } = feed;
+
+    const h3Li = document.createElement('h3');
+    h3Li.classList.add('h6', 'm-0');
+    h3Li.textContent = feedTitle;
+
+    const pLi = document.createElement('p');
+    pLi.classList.add('m-0', 'small', 'text-black-50');
+    pLi.textContent = feedDescription;
+
+    liCard.append(h3Li);
+    liCard.append(pLi);
+
+    ulCard.appendChild(liCard);
+  });
+
+  divCard.append(divCardBody);
+  divCard.append(ulCard);
+  feeds.append(divCard);
+};
+
+const modalRender = (elements, state) => {
+  const { modalTitle, modalDescription, readButton } = elements;
+  const { content, activePostId } = state;
+
+  const selectedPost = content.postsItem.find((post) => activePostId === post.postId);
+
+  if (selectedPost) {
+    modalTitle.textContent = selectedPost.postTitle;
+    modalDescription.textContent = selectedPost.postDescription;
+    readButton.href = selectedPost.postLink;
   }
-  const view = renderContainer('feeds', i18next);
-  const list = view.querySelector('ul');
-  feedList.forEach((el) => {
-    const feed = document.createElement('li');
-    feed.classList.add('list-group-item', 'border-0', 'border-end-0');
-    const feedHeader = document.createElement('h3');
-    feed.append(feedHeader);
-    feedHeader.classList.add('h6', 'm-0');
-    feedHeader.textContent = el.title;
-    const description = document.createElement('p');
-    feed.append(description);
-    description.classList.add('m-0', 'small', 'text-black-50');
-    description.textContent = el.description;
-    list.append(feed);
-  });
-  feedsEl.append(view);
 };
 
-const keepSeenPosts = (iDs) => {
-  iDs.forEach((id) => {
-    const seenPost = document.querySelector(`a[data-id="${id}"]`);
-    seenPost.classList.remove('fw-bold');
-    seenPost.classList.add('fw-normal', 'link-secondary');
+const renderWatchedLinks = (state) => {
+  const { readLink } = state;
+  readLink.forEach((postId) => {
+    const post = document.querySelector(`[data-id="${postId}"]`);
+    post.classList.add('fw-normal', 'link-secondary');
+    post.classList.remove('fw-bold');
   });
 };
 
-const renderModalWindow = (modalEl, modalState) => {
-  const title = modalEl.querySelector('#modal .modal-title');
-  const body = modalEl.querySelector('#modal .modal-body');
-  const readFullArticle = modalEl.querySelector('#modal a');
-  title.textContent = modalState.title;
-  body.textContent = modalState.description;
-  readFullArticle.href = modalState.link;
+const handleProcessState = (elements, process, state, i18n) => {
+  switch (process) {
+    case 'failed':
+      elements.submit.disabled = false;
+      elements.input.focus();
+      break;
+    case 'sending':
+      elements.submit.disabled = true;
+      elements.form.focus();
+      break;
+
+    case 'success':
+      elements.submit.disabled = false;
+      elements.form.reset();
+      elements.form.focus();
+      successRenderFeeds(elements, state, i18n);
+      successRenderPosts(elements, state, i18n);
+      break;
+
+    default:
+      throw new Error(`Unknown process ${process}`);
+  }
 };
 
-export default (state, i18next, el) => onChange(state, (path, value) => {
+const initView = (elements, i18n, state) => (path, value) => {
   switch (path) {
-    case 'form.status':
-      switch (value) {
-        case 'success':
-          renderSuccessForm(el.input, el.statusMessage, i18next, el.formButton);
-          break;
-        case 'inProcess':
-          renderProcessForm(el.input, el.statusMessage, el.formButton);
-          break;
-        case 'error':
-          renderErrorForm(el.input, el.statusMessage, i18next, state.form.error, el.formButton);
-          break;
-        default:
-          throw new Error('Unexpected form status');
-      }
+    case 'form.processState':
+      handleProcessState(elements, value, state, i18n);
       break;
-    case 'rss.feeds':
-      renderFeeds(el.feeds, i18next, value);
+
+    case 'form.error':
+      renderErrorsHandler(value, elements, i18n);
       break;
-    case 'rss.posts':
-      renderPosts(el.posts, i18next, value);
-      keepSeenPosts(state.rss.seenPosts);
+
+    case 'content.postsItem':
+      successRenderPosts(elements, state, i18n);
+      renderWatchedLinks(state);
       break;
-    case 'rss.seenPosts':
-      keepSeenPosts(value);
+
+    case 'content.feedsItem':
+      successRenderFeeds(elements, state, i18n);
+      renderWatchedLinks(state);
       break;
-    case 'modal':
-      renderModalWindow(el.modal, value);
+
+    case 'activePostId':
+      modalRender(elements, state);
       break;
+
+    case 'readLink':
+      renderWatchedLinks(state);
+      break;
+
     default:
       break;
   }
-});
+};
+
+export default initView;
