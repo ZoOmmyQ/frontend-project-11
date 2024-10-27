@@ -3,3 +3,5 @@
 
 # Ignore built files except build/index.js
 dist/*
+src/view.js
+src/app.js
