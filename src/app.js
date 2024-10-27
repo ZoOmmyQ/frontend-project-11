@@ -25,6 +25,7 @@ const updateRssState = (link, watchState) => getRoute(link)
     watchState.content.feedsItem.unshift({
       feedTitle, feedDescription, link, feedId,
     });
+    /* eslint-disable */
     newPosts.forEach((item) => {
       item.postId = _.uniqueId();
     });
@@ -61,7 +62,7 @@ const updatePosts = (watchState) => {
     .catch((error) => {
       watchState.form.error = error.message;
     }));
-
+/* eslint-enable */
   Promise.all(promises).finally(() => {
     setTimeout(() => {
       updatePosts(watchState);

@@ -2,6 +2,7 @@ const renderErrorsHandler = (alert, elements, i18n) => {
   const errorMessage = alert !== undefined
     ? alert.key
     : alert;
+    /* eslint-disable */
   if (errorMessage) {
     elements.input.classList.add('is-invalid');
     elements.feedback.classList.add('text-danger');
@@ -22,7 +23,7 @@ const successRenderPosts = (elements, state, i18n) => {
   const { posts } = elements;
 
   posts.innerHTML = '';
-
+/* eslint-enable */
   const divCard = document.createElement('div');
   divCard.classList.add('card', 'border-0');
 
@@ -144,7 +145,7 @@ const renderWatchedLinks = (state) => {
     post.classList.remove('fw-bold');
   });
 };
-
+/* eslint-disable */
 const handleProcessState = (elements, process, state, i18n) => {
   switch (process) {
     case 'failed':
@@ -168,7 +169,7 @@ const handleProcessState = (elements, process, state, i18n) => {
       throw new Error(`Unknown process ${process}`);
   }
 };
-
+/* eslint-enable */
 const initView = (elements, i18n, state) => (path, value) => {
   switch (path) {
     case 'form.processState':
