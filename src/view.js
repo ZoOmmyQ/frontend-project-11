@@ -23,7 +23,7 @@ const successRenderPosts = (elements, state, i18n) => {
   const { posts } = elements;
 
   posts.innerHTML = '';
-/* eslint-enable */
+  /* eslint-enable */
   const divCard = document.createElement('div');
   divCard.classList.add('card', 'border-0');
 

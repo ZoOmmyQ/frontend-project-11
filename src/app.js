@@ -62,7 +62,7 @@ const updatePosts = (watchState) => {
     .catch((error) => {
       watchState.form.error = error.message;
     }));
-/* eslint-enable */
+  /* eslint-enable */
   Promise.all(promises).finally(() => {
     setTimeout(() => {
       updatePosts(watchState);
