@@ -17,9 +17,10 @@ const getRoute = (url) => {
   return axios.get(result.toString());
 };
 
-const updateRssState = (link, watchState) => getRoute(link)
-  .then((data) => parse(data.data.contents))
-  .then((data) => {
+const updateRssState = async (link, watchState) => {
+  try {
+    const response = await getRoute(link);
+    const data = await parse(response.data.contents);
     const { feedTitle, feedDescription, newPosts } = data;
     const feedId = _.uniqueId();
     watchState.content.feedsItem.unshift({
@@ -32,8 +33,8 @@ const updateRssState = (link, watchState) => getRoute(link)
     const posts = [...newPosts, ...watchState.content.postsItem];
     watchState.content.postsItem = posts;
     watchState.form.error = '';
-  })
-  .catch((e) => {
+  }
+  catch(e) {
     watchState.form.processState = 'failed';
     if (e.message === 'rssError') {
       watchState.form.error = ({ key: 'rssError' });
@@ -41,7 +42,8 @@ const updateRssState = (link, watchState) => getRoute(link)
     if (e.message === 'Network Error') {
       watchState.form.error = ({ key: 'networkError' });
     }
-  });
+  };
+};
 
 const delay = 5000;
 
